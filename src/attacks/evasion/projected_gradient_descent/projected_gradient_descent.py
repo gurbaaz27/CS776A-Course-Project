@@ -1,3 +1,28 @@
+# MIT License
+#
+# Copyright (C) The Adversarial Robustness Toolbox (ART) Authors 2020
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
+# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+# persons to whom the Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
+# Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+"""
+This module implements the Projected Gradient Descent attack `ProjectedGradientDescent` as an iterative method in which,
+after each iteration, the perturbation is projected on an lp-ball of specified radius (in addition to clipping the
+values of the adversarial sample so that it lies in the permitted data range). This is the attack proposed by Madry et
+al. for adversarial training.
+
+| Paper link: https://arxiv.org/abs/1706.06083
+"""
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
@@ -18,6 +43,13 @@ logger = logging.getLogger(__name__)
 
 
 class ProjectedGradientDescent(EvasionAttack):
+    """
+    The Projected Gradient Descent attack is an iterative method in which, after each iteration, the perturbation is
+    projected on an lp-ball of specified radius (in addition to clipping the values of the adversarial sample so that it
+    lies in the permitted data range). This is the attack proposed by Madry et al. for adversarial training.
+
+    | Paper link: https://arxiv.org/abs/1706.06083
+    """
 
     attack_params = EvasionAttack.attack_params + [
         "norm",
@@ -59,12 +91,19 @@ class ProjectedGradientDescent(EvasionAttack):
                            method with PGD is untested (https://arxiv.org/pdf/1611.01236.pdf).
         :param max_iter: The maximum number of iterations.
         :param targeted: Indicates whether the attack is targeted (True) or untargeted (False).
-        :param num_random_init: Number of random initialisations within the epsilon ball. For num_random_init=0 stsrcing
+        :param num_random_init: Number of random initialisations within the epsilon ball. For num_random_init=0 starting
                                 at the original input.
         :param batch_size: Size of the batch on which adversarial samples are generated.
+        :param summary_writer: Activate summary writer for TensorBoard.
+                               Default is `False` and deactivated summary writer.
+                               If `True` save runs/CURRENT_DATETIME_HOSTNAME in current directory.
+                               If of type `str` save in path.
+                               If of type `SummaryWriter` apply provided custom summary writer.
+                               Use hierarchical folder structure to compare between runs easily. e.g. pass in
+                               ‘runs/exp1’, ‘runs/exp2’, etc. for each new experiment to compare across them.
         :param verbose: Show progress bars.
         """
-        super().__init__(estimator=estimator)
+        super().__init__(estimator=estimator)#, summary_writer=False)
 
         self.norm = norm
         self.eps = eps
@@ -106,13 +145,7 @@ class ProjectedGradientDescent(EvasionAttack):
         :return: An array holding the adversarial examples.
         """
         logger.info("Creating adversarial samples.")
-        print(self._attack.__dict__)
         return self._attack.generate(x=x, y=y, **kwargs)
-
-    # @property
-    # def summary_writer(self):
-    #     """The summary writer."""
-    #     return self._attack.summary_writer
 
     def set_params(self, **kwargs) -> None:
         super().set_params(**kwargs)
