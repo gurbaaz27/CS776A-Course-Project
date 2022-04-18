@@ -34,17 +34,14 @@ DATASET_TYPE = Tuple[  # pylint: disable=C0103
 CLIP_VALUES_TYPE = Tuple[Union[int, float, np.ndarray], Union[int, float, np.ndarray]]  # pylint: disable=C0103
 
 if TYPE_CHECKING:
-    # pylint: disable=R0401,C0412
     from src.defences.preprocessor import Preprocessor
 
-    PREPROCESSING_TYPE = Optional[  # pylint: disable=C0103
+    PREPROCESSING_TYPE = Optional[ 
         Union[
             Tuple[Union[int, float, np.ndarray], Union[int, float, np.ndarray]], Preprocessor, Tuple[Preprocessor, ...]
         ]
     ]
 
-    # from src.estimators.classification.blackbox import BlackBoxClassifier
-    # from src.estimators.classification.catboost import CatBoostARTClassifier
     from src.estimators.classification.classifier import (
         Classifier,
         ClassifierClassLossGradients,
@@ -52,154 +49,33 @@ if TYPE_CHECKING:
         ClassifierLossGradients,
         ClassifierNeuralNetwork,
     )
-    # from src.estimators.classification.detector_classifier import DetectorClassifier
-    # from src.estimators.classification.ensemble import EnsembleClassifier
-    # from src.estimators.classification.GPy import GPyGaussianProcessClassifier
     from src.estimators.classification.keras import KerasClassifier
-    # from src.experimental.estimators.classification.jax import JaxClassifier
-    # from src.estimators.classification.lightgbm import LightGBMClassifier
-    # from src.estimators.classification.mxnet import MXClassifier
-    # from src.estimators.classification.pytorch import PyTorchClassifier
-    # from src.estimators.classification.query_efficient_bb import QueryEfficientGradientEstimationClassifier
-    # from src.estimators.classification.scikitlearn import (
-    #     ScikitlearnAdaBoostClassifier,
-    #     ScikitlearnBaggingClassifier,
-    #     ScikitlearnClassifier,
-    #     ScikitlearnDecisionTreeClassifier,
-    #     ScikitlearnDecisionTreeRegressor,
-    #     ScikitlearnExtraTreeClassifier,
-    #     ScikitlearnExtraTreesClassifier,
-    #     ScikitlearnGradientBoostingClassifier,
-    #     ScikitlearnLogisticRegression,
-    #     ScikitlearnRandomForestClassifier,
-    #     ScikitlearnSVC,
-    # )
-    # from src.estimators.classification.tensorflow import TensorFlowClassifier, TensorFlowV2Classifier
-    # from src.estimators.classification.xgboost import XGBoostClassifier
-    # from src.estimators.generation import TensorFlowGenerator
-    # from src.estimators.generation.tensorflow import TensorFlow2Generator
-    # from src.estimators.object_detection.object_detector import ObjectDetector
-    # from src.estimators.object_detection.python_object_detector import PyTorchObjectDetector
-    # from src.estimators.object_detection.pytorch_faster_rcnn import PyTorchFasterRCNN
-    # from src.estimators.object_detection.tensorflow_faster_rcnn import TensorFlowFasterRCNN
-    # from src.estimators.pytorch import PyTorchEstimator
-    # from src.estimators.regression.scikitlearn import ScikitlearnRegressor
-    # from src.estimators.speech_recognition.pytorch_deep_speech import PyTorchDeepSpeech
-    # from src.estimators.speech_recognition.tensorflow_lingvo import TensorFlowLingvoASR
-    # from src.estimators.tensorflow import TensorFlowV2Estimator
 
-    CLASSIFIER_LOSS_GRADIENTS_TYPE = Union[  # pylint: disable=C0103
+    CLASSIFIER_LOSS_GRADIENTS_TYPE = Union[
         ClassifierLossGradients,
-        # EnsembleClassifier,
-        # GPyGaussianProcessClassifier,
         KerasClassifier,
-        # JaxClassifier,
-        # MXClassifier,
-        # PyTorchClassifier,
-        # ScikitlearnLogisticRegression,
-        # ScikitlearnSVC,
-        # TensorFlowClassifier,
-        # TensorFlowV2Classifier,
-        # QueryEfficientGradientEstimationClassifier,
     ]
 
     CLASSIFIER_CLASS_LOSS_GRADIENTS_TYPE = Union[  # pylint: disable=C0103
         ClassifierClassLossGradients,
-        # EnsembleClassifier,
-        # GPyGaussianProcessClassifier,
         KerasClassifier,
-        # MXClassifier,
-        # PyTorchClassifier,
-        # ScikitlearnLogisticRegression,
-        # ScikitlearnSVC,
-        # TensorFlowClassifier,
-        # TensorFlowV2Classifier,
     ]
 
     CLASSIFIER_NEURALNETWORK_TYPE = Union[  # pylint: disable=C0103
         ClassifierNeuralNetwork,
-        # DetectorClassifier,
-        # EnsembleClassifier,
         KerasClassifier,
-        # MXClassifier,
-        # PyTorchClassifier,
-        # TensorFlowClassifier,
-        # TensorFlowV2Classifier,
     ]
 
     CLASSIFIER_DECISION_TREE_TYPE = Union[  # pylint: disable=C0103
         ClassifierDecisionTree,
         ClassifierDecisionTree
-        # LightGBMClassifier,
-        # ScikitlearnDecisionTreeClassifier,
-        # ScikitlearnExtraTreesClassifier,
-        # ScikitlearnGradientBoostingClassifier,
-        # ScikitlearnRandomForestClassifier,
-        # XGBoostClassifier,
     ]
 
     CLASSIFIER_TYPE = Union[  # pylint: disable=C0103
         Classifier,
-        # BlackBoxClassifier,
-        # CatBoostARTClassifier,
-        # DetectorClassifier,
-        # EnsembleClassifier,
-        # GPyGaussianProcessClassifier,
         KerasClassifier,
-        # JaxClassifier,
-        # LightGBMClassifier,
-        # MXClassifier,
-        # PyTorchClassifier,
-        # ScikitlearnClassifier,
-        # ScikitlearnDecisionTreeClassifier,
-        # ScikitlearnExtraTreeClassifier,
-        # ScikitlearnAdaBoostClassifier,
-        # ScikitlearnBaggingClassifier,
-        # ScikitlearnExtraTreesClassifier,
-        # ScikitlearnGradientBoostingClassifier,
-        # ScikitlearnRandomForestClassifier,
-        # ScikitlearnLogisticRegression,
-        # ScikitlearnSVC,
-        # TensorFlowClassifier,
-        # TensorFlowV2Classifier,
-        # XGBoostClassifier,
         CLASSIFIER_NEURALNETWORK_TYPE,
     ]
-
-    # GENERATOR_TYPE = Union[TensorFlowGenerator, TensorFlow2Generator]  # pylint: disable=C0103
-
-    # REGRESSOR_TYPE = Union[ScikitlearnRegressor, ScikitlearnDecisionTreeRegressor]  # pylint: disable=C0103
-
-    # OBJECT_DETECTOR_TYPE = Union[  # pylint: disable=C0103
-    #     ObjectDetector,
-    #     PyTorchObjectDetector,
-    #     PyTorchFasterRCNN,
-    #     TensorFlowFasterRCNN,
-    # ]
-
-    # SPEECH_RECOGNIZER_TYPE = Union[  # pylint: disable=C0103
-    #     PyTorchDeepSpeech,
-    #     TensorFlowLingvoASR,
-    # ]
-
-    # PYTORCH_ESTIMATOR_TYPE = Union[  # pylint: disable=C0103
-    #     PyTorchClassifier,
-    #     PyTorchDeepSpeech,
-    #     PyTorchEstimator,
-    #     PyTorchObjectDetector,
-    #     PyTorchFasterRCNN,
-    # ]
-
-    # TENSORFLOWV2_ESTIMATOR_TYPE = Union[  # pylint: disable=C0103
-    #     TensorFlowV2Classifier,
-    #     TensorFlowV2Estimator,
-    # ]
-
-    # ESTIMATOR_TYPE = Union[  # pylint: disable=C0103
-    #     CLASSIFIER_TYPE, REGRESSOR_TYPE, OBJECT_DETECTOR_TYPE, SPEECH_RECOGNIZER_TYPE
-    # ]
-
-# --------------------------------------------------------------------------------------------------------- DEPRECATION
 
 
 class _Deprecated:

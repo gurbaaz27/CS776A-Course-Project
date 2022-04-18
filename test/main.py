@@ -91,7 +91,7 @@ plt.imshow(pdata[0].squeeze())
 targets = to_categorical([9], 10)[0]
 
 proxy = AdversarialTrainerMadryPGD(
-    KerasClassifier(create_model()), nb_epochs=10, eps=0.15, eps_step=0.001
+    KerasClassifier(create_model()), nb_epochs=1, eps=0.15, eps_step=0.001
 )
 proxy.fit(x_train, y_train)
 
@@ -122,11 +122,11 @@ warnings.filterwarnings("ignore")
 
 from src import config
 from src.utils import load_dataset, get_file
-from src.estimators.classification import KerasClassifier
+# from src.estimators.classification.keras import KerasClassifier
 from src.attacks.evasion.fast_gradient import FastGradientMethod
 
 # from src.attacks.evasion import BasicIterativeMethod
-from src.defences.trainer import AdversarialTrainer
+from src.defences.trainer.adversarial_trainer import AdversarialTrainer
 
 import numpy as np
 

@@ -145,6 +145,7 @@ class ProjectedGradientDescent(EvasionAttack):
         :return: An array holding the adversarial examples.
         """
         logger.info("Creating adversarial samples.")
+        print(self._attack.__dict__)
         return self._attack.generate(x=x, y=y, **kwargs)
 
     def set_params(self, **kwargs) -> None:

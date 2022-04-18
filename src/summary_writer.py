@@ -226,7 +226,7 @@ class SummaryWriterDefault(SummaryWriter):
         # Indicators of Attack Failure by Pintor et al. (2021)
         # Paper link: https://arxiv.org/abs/2106.09947
         if self.ind_1:  # Silent Success
-            from art.estimators.classification.classifier import ClassifierMixin
+            from src.estimators.classification.classifier import ClassifierMixin
 
             if isinstance(estimator, ClassifierMixin):
                 if y is not None:

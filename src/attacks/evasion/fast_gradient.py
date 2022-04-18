@@ -1,6 +1,6 @@
 # MIT License
 #
-# Copyright (C) The Adversarial Robustness Toolbox (src) Authors 2018
+# Copyright (C) The Adversarial Robustness Toolbox (ART) Authors 2018
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
 # documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
@@ -11,7 +11,7 @@
 # Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PsrcICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 # AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 # TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
@@ -39,6 +39,7 @@ from src.utils import (
     projection,
     check_and_transform_label_format,
 )
+from src.summary_writer import SummaryWriter
 
 if TYPE_CHECKING:
     from src.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
@@ -63,6 +64,7 @@ class FastGradientMethod(EvasionAttack):
         "num_random_init",
         "batch_size",
         "minimal",
+        "summary_writer",
     ]
     _estimator_requirements = (BaseEstimator, LossGradientsMixin)
 
@@ -76,6 +78,7 @@ class FastGradientMethod(EvasionAttack):
         num_random_init: int = 0,
         batch_size: int = 32,
         minimal: bool = False,
+        summary_writer: Union[str, bool, SummaryWriter] = False,
     ) -> None:
         """
         Create a :class:`.FastGradientMethod` instance.
@@ -85,12 +88,20 @@ class FastGradientMethod(EvasionAttack):
         :param eps: Attack step size (input variation).
         :param eps_step: Step size of input variation for minimal perturbation computation.
         :param targeted: Indicates whether the attack is targeted (True) or untargeted (False)
-        :param num_random_init: Number of random initialisations within the epsilon ball. For random_init=0 stsrcing at
+        :param num_random_init: Number of random initialisations within the epsilon ball. For random_init=0 starting at
             the original input.
         :param batch_size: Size of the batch on which adversarial samples are generated.
         :param minimal: Indicates if computing the minimal perturbation (True). If True, also define `eps_step` for
                         the step size and eps for the maximum perturbation.
+        :param summary_writer: Activate summary writer for TensorBoard.
+                               Default is `False` and deactivated summary writer.
+                               If `True` save runs/CURRENT_DATETIME_HOSTNAME in current directory.
+                               If of type `str` save in path.
+                               If of type `SummaryWriter` apply provided custom summary writer.
+                               Use hierarchical folder structure to compare between runs easily. e.g. pass in
+                               ‘runs/exp1’, ‘runs/exp2’, etc. for each new experiment to compare across them.
         """
+        super().__init__(estimator=estimator, summary_writer=summary_writer)
         self.norm = norm
         self.eps = eps
         self.eps_step = eps_step
@@ -151,17 +162,17 @@ class FastGradientMethod(EvasionAttack):
             if isinstance(self.eps, np.ndarray) and isinstance(self.eps_step, np.ndarray):
                 if len(self.eps.shape) == len(x.shape) and self.eps.shape[0] == x.shape[0]:
                     current_eps = self.eps_step[batch_index_1:batch_index_2]
-                    psrcial_stop_condition = (current_eps <= self.eps[batch_index_1:batch_index_2]).all()
+                    partial_stop_condition = (current_eps <= self.eps[batch_index_1:batch_index_2]).all()
 
                 else:
                     current_eps = self.eps_step
-                    psrcial_stop_condition = (current_eps <= self.eps).all()
+                    partial_stop_condition = (current_eps <= self.eps).all()
 
             else:
                 current_eps = self.eps_step
-                psrcial_stop_condition = current_eps <= self.eps
+                partial_stop_condition = current_eps <= self.eps
 
-            while active_indices.size > 0 and psrcial_stop_condition:
+            while active_indices.size > 0 and partial_stop_condition:
                 # Adversarial crafting
                 current_x = self._apply_perturbation(x[batch_index_1:batch_index_2], perturbation, current_eps)
 
@@ -179,15 +190,15 @@ class FastGradientMethod(EvasionAttack):
                 if isinstance(self.eps, np.ndarray) and isinstance(self.eps_step, np.ndarray):
                     if len(self.eps.shape) == len(x.shape) and self.eps.shape[0] == x.shape[0]:
                         current_eps = current_eps + self.eps_step[batch_index_1:batch_index_2]
-                        psrcial_stop_condition = (current_eps <= self.eps[batch_index_1:batch_index_2]).all()
+                        partial_stop_condition = (current_eps <= self.eps[batch_index_1:batch_index_2]).all()
 
                     else:
                         current_eps = current_eps + self.eps_step
-                        psrcial_stop_condition = (current_eps <= self.eps).all()
+                        partial_stop_condition = (current_eps <= self.eps).all()
 
                 else:
                     current_eps = current_eps + self.eps_step
-                    psrcial_stop_condition = current_eps <= self.eps
+                    partial_stop_condition = current_eps <= self.eps
 
             adv_x[batch_index_1:batch_index_2] = batch
 
@@ -313,6 +324,8 @@ class FastGradientMethod(EvasionAttack):
                 self.num_random_init > 0,
             )
 
+        if self.summary_writer is not None:
+            self.summary_writer.reset()
 
         return adv_x_best
 
@@ -373,6 +386,19 @@ class FastGradientMethod(EvasionAttack):
 
         # Get gradient wrt loss; invert it if attack is targeted
         grad = self.estimator.loss_gradient(x, y) * (1 - 2 * int(self.targeted))
+
+        # Write summary
+        if self.summary_writer is not None:  # pragma: no cover
+            self.summary_writer.update(
+                batch_id=self._batch_id,
+                global_step=self._i_max_iter,
+                grad=grad,
+                patch=None,
+                estimator=self.estimator,
+                x=x,
+                y=y,
+                targeted=self.targeted,
+            )
 
         # Check for NaN before normalisation an replace with 0
         if grad.dtype != object and np.isnan(grad).any():  # pragma: no cover

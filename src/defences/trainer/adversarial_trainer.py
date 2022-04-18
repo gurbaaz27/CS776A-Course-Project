@@ -20,7 +20,7 @@ This module implements adversarial training based on a model and one or multiple
 original adversarial training, ensemble adversarial training, training on all adversarial data and other common setups.
 If multiple attacks are specified, they are rotated for each batch. If the specified attacks have as target a different
 model, then the attack is transferred. The `ratio` determines how many of the clean samples in each batch are replaced
-with their adversarial counterpart.
+with their adversarial counterpsrc.
 
 .. warning:: Both successful and unsuccessful adversarial samples are used for training. In the case of
               unbounded attacks (e.g., DeepFool), this can result in invalid (very noisy) samples being included.
@@ -56,7 +56,7 @@ class AdversarialTrainer(Trainer):
     Incorporates original adversarial training, ensemble adversarial training (https://arxiv.org/abs/1705.07204),
     training on all adversarial data and other common setups. If multiple attacks are specified, they are rotated
     for each batch. If the specified attacks have as target a different model, then the attack is transferred. The
-    `ratio` determines how many of the clean samples in each batch are replaced with their adversarial counterpart.
+    `ratio` determines how many of the clean samples in each batch are replaced with their adversarial counterpsrc.
 
      .. warning:: Both successful and unsuccessful adversarial samples are used for training. In the case of
                   unbounded attacks (e.g., DeepFool), this can result in invalid (very noisy) samples being included.
@@ -243,10 +243,6 @@ class AdversarialTrainer(Trainer):
 
                 # If source and target models are the same, craft fresh adversarial samples
                 if attack.estimator == self._classifier:
-                    print("HELLO")
-                    print(attack.estimator)
-                    print(self._classifier)
-                    print(attack.__dict__)
                     x_batch[adv_ids] = attack.generate(x_batch[adv_ids], y=y_batch[adv_ids])
 
                 # Otherwise, use precomputed adversarial samples
