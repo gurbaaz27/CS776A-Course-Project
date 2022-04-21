@@ -12,6 +12,8 @@
 
 ## Implementation References
 
+![](/assets/model.png)
+
 1. Projected Gradient Descent : <https://arxiv.org/abs/1706.06083>
 2. Fast Gradient : <https://arxiv.org/abs/1412.6572>
 3. Poisoning Backdoor Attack : <https://arxiv.org/abs/1708.06733>
