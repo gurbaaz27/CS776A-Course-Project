@@ -35,13 +35,13 @@
 
 - [Introduction](https://docs.google.com/presentation/d/1MmP0-k36qOBBNjjmTbijOYmaXke5C320Nk0bbWvtvHs/edit?usp=sharing)
 - [MidTerm](https://docs.google.com/presentation/d/1nM_yWx62foza3gbXtWaH5z8jiSWkhmBDAvXaYklACuI/edit?usp=sharing)
-- [EndTerm](#)
+- [EndTerm](https://docs.google.com/presentation/d/15msRML-j4l8fJDiF01JdxQi4W_CI6NPOQ-SlDda5v48/edit?usp=sharing)
 
 ## Team Details
 
-Name : Four of a Kind
+- Name : Four of a Kind
 
-Members :-
+- Members :
 
 | **Name** | **Roll No.** | 
 | ----------- | ----------- |
