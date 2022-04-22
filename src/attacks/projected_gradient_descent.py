@@ -216,6 +216,8 @@ class ProjectedGradientDescentNumpy(ProjectedGradientDescentCommon):
         # Check whether random eps is enabled
         self._random_eps()
 
+        print(self.estimator)
+
         if isinstance(self.estimator, ClassifierMixin):
             # Set up targets
             targets = self._set_targets(x, y)
@@ -230,7 +232,7 @@ class ProjectedGradientDescentNumpy(ProjectedGradientDescentCommon):
                 for rand_init_num in trange(
                     max(1, self.num_random_init),
                     desc="PGD - Random Initializations",
-                    disable=not self.verbose,
+                    disable=True,
                 ):
                     batch_index_1, batch_index_2 = (
                         batch_id * self.batch_size,
@@ -249,7 +251,7 @@ class ProjectedGradientDescentNumpy(ProjectedGradientDescentCommon):
                         self.max_iter,
                         desc="PGD - Iterations",
                         leave=False,
-                        disable=not self.verbose,
+                        disable=True,
                     ):
                         self._i_max_iter = i_max_iter
 

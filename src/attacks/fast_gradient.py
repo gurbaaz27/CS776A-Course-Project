@@ -38,21 +38,7 @@ class FastGradientMethod(AdversarialAttack):
         batch_size: int = 32,
         minimal: bool = False,
     ) -> None:
-        """
-        Create a :class:`.FastGradientMethod` instance.
-
-        :param estimator: A trained classifier.
-        :param norm: The norm of the adversarial perturbation. Possible values: "inf", np.inf, 1 or 2.
-        :param eps: Attack step size (input variation).
-        :param eps_step: Step size of input variation for minimal perturbation computation.
-        :param targeted: Indicates whether the attack is targeted (True) or untargeted (False)
-        :param num_random_init: Number of random initialisations within the epsilon ball. For random_init=0 starting at
-            the original input.
-        :param batch_size: Size of the batch on which adversarial samples are generated.
-        :param minimal: Indicates if computing the minimal perturbation (True). If True, also define `eps_step` for
-                        the step size and eps for the maximum perturbation.
-        """
-        super().__init__(estimator=estimator)  # , summary_writer=summary_writer)
+        super().__init__(estimator=estimator)
         self.norm = norm
         self.eps = eps
         self.eps_step = eps_step
@@ -66,11 +52,6 @@ class FastGradientMethod(AdversarialAttack):
         self._i_max_iter = 0
 
     def _check_compatibility_input_and_eps(self, x: np.ndarray):
-        """
-        Check the compatibility of the input with `eps` and `eps_step` which are of the same shape.
-
-        :param x: An array with the original inputs.
-        """
         if isinstance(self.eps, np.ndarray):
             # Ensure the eps array is broadcastable
             if self.eps.ndim > x.ndim:  # pragma: no cover
@@ -523,16 +504,6 @@ class FastGradientMethod(AdversarialAttack):
 
     @staticmethod
     def _get_mask(x: np.ndarray, **kwargs) -> np.ndarray:
-        """
-        Get the mask from the kwargs.
-
-        :param x: An array with the original inputs.
-        :param mask: An array with a mask to be applied to the adversarial perturbations. Shape needs to be
-                     broadcastable to the shape of x. Any features for which the mask is zero will not be adversarially
-                     perturbed.
-        :type mask: `np.ndarray`
-        :return: The mask.
-        """
         mask = kwargs.get("mask")
 
         if mask is not None:
