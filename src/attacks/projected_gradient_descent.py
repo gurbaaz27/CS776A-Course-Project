@@ -9,7 +9,7 @@ from tqdm.auto import trange
 from src.classifiers.estimator import BaseEstimator, LossGradientsMixin
 from src.attacks.attack import AdversarialAttack
 from src.attacks.fast_gradient import FastGradientMethod
-from constants import FLOAT_NUMPY
+from src.constants import FLOAT_NUMPY
 from src.classifiers.classifier import ClassifierMixin
 from src.classifiers.estimator import BaseEstimator, LossGradientsMixin
 from src.preprocessing.utils import (

@@ -128,7 +128,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 # Commented out IPython magic to ensure Python compatibility.
 warnings.filterwarnings('ignore')
 
-from . import constants
+from src import constants
 from src.classifiers.kerasclassifier import KerasClassifier
 from src.attacks.fast_gradient import FastGradientMethod
 from src.defences.adversarial_trainer import AdversarialTrainer

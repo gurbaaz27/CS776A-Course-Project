@@ -5,7 +5,7 @@ from typing import Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
-from constants import FLOAT_NUMPY
+from src.constants import FLOAT_NUMPY
 from src.attacks.attack import AdversarialAttack
 from src.classifiers.estimator import BaseEstimator, LossGradientsMixin
 from src.classifiers.classifier import ClassifierMixin

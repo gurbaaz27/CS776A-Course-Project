@@ -13,7 +13,7 @@ import six
 from scipy.special import gammainc
 from tqdm.auto import tqdm
 
-from . import constants
+from src import constants
 
 
 logger = logging.getLogger(__name__)

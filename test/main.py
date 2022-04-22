@@ -120,7 +120,7 @@ for i in range(len(poisoned)):
 
 warnings.filterwarnings("ignore")
 
-from . import constants
+from src import constants
 from src.preprocessing.utils import load_dataset, get_file
 # from src.estimators.classification.keras import KerasClassifier
 

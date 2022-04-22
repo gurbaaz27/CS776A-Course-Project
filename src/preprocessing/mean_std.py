@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Union
 
 import numpy as np
 
-from constants import FLOAT_NUMPY
+from src.constants import FLOAT_NUMPY
 from src.defences.preprocessor import Preprocessor
 
 logger = logging.getLogger(__name__)

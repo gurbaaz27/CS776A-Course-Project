@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 import numpy as np
 from tqdm.auto import trange
 
-from constants import FLOAT_NUMPY
+from src.constants import FLOAT_NUMPY
 
 if TYPE_CHECKING:
     # pylint: disable=R0401
@@ -82,7 +82,7 @@ class BaseEstimator(ABC):
         if self.preprocessing is None:
             pass
         elif isinstance(self.preprocessing, tuple):
-            from preprocessing.mean_std import (
+            from src.preprocessing.mean_std import (
                 StandardisationMeanStd,
             )
 
@@ -105,7 +105,7 @@ class BaseEstimator(ABC):
         if preprocessing is None:
             return None
         if isinstance(preprocessing, tuple):
-            from preprocessing.mean_std import (
+            from src.preprocessing.mean_std import (
                 StandardisationMeanStd,
             )
 

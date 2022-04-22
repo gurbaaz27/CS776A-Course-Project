@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Any, TYPE_CHECKING
 
 import numpy as np
 
-from . import constants
+from src import constants
 
 if TYPE_CHECKING:
     import tensorflow as tf

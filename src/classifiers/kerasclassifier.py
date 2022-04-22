@@ -18,7 +18,7 @@ from typing import (
 import numpy as np
 import six
 
-from . import constants
+from src import constants
 from src.classifiers.keras import KerasEstimator
 from src.classifiers.classifier import (
     ClassifierMixin,
@@ -628,7 +628,7 @@ class KerasClassifier(ClassGradientsMixin, ClassifierMixin, KerasEstimator):
         from src.preprocessing.datagen import KerasDataGenerator
 
         # Try to use the generator as a Keras native generator, otherwise use it through the `DataGenerator` interface
-        from preprocessing.mean_std import StandardisationMeanStd
+        from src.preprocessing.mean_std import StandardisationMeanStd
 
         if isinstance(generator, KerasDataGenerator) and (
             self.preprocessing is None
@@ -680,7 +680,7 @@ class KerasClassifier(ClassGradientsMixin, ClassifierMixin, KerasEstimator):
             import tensorflow.keras.backend as k  # pylint: disable=E0611
         else:
             import keras.backend as k
-        from constants import FLOAT_NUMPY
+        from src.constants import FLOAT_NUMPY
 
         if isinstance(layer, six.string_types):
             if layer not in self._layer_names:  # pragma: no cover
