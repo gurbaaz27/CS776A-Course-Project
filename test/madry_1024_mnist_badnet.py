@@ -42,8 +42,8 @@ from mpl_toolkits import mplot3d
 
 from src.classifiers.kerasclassifier import KerasClassifier
 from src.attacks.backdoor import PoisoningAttackBackdoor
-from src.attacks.utils import add_pattern_bd, add_single_bd, insert_image
-from src.utils import load_mnist, preprocess
+from src.attacks.utils import pattern_backdoor, single_backdoor, insert_image
+from src.preprocessing.utils import load_mnist, preprocess
 
 (x_raw, y_raw), (x_raw_test, y_raw_test), min_, max_ = load_mnist(raw=True)
 
@@ -59,9 +59,9 @@ BACKDOOR_TYPE = "pattern" # one of ['pattern', 'pixel', 'image']
 max_val = np.max(x_raw)
 def add_modification(x):
         if BACKDOOR_TYPE == 'pattern':
-            return add_pattern_bd(x, pixel_value=max_val)
+            return pattern_backdoor(x, pixel_value=max_val)
         elif BACKDOOR_TYPE == 'pixel':
-            return add_single_bd(x, pixel_value=max_val) 
+            return single_backdoor(x, pixel_value=max_val) 
         elif BACKDOOR_TYPE == 'image':
             return insert_image(x, backdoor_path='../utils/data/backdoors/alert.png', size=(10,10))
         else:
@@ -128,7 +128,7 @@ model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accur
 # Commented out IPython magic to ensure Python compatibility.
 warnings.filterwarnings('ignore')
 
-from src import config
+from . import constants
 from src.classifiers.kerasclassifier import KerasClassifier
 from src.attacks.fast_gradient import FastGradientMethod
 from src.defences.adversarial_trainer import AdversarialTrainer

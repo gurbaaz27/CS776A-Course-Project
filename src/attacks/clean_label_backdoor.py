@@ -3,18 +3,18 @@ from typing import Optional, Tuple, TYPE_CHECKING, Union
 
 import numpy as np
 
-from src.attacks.attack import PoisoningAttackBlackBox
+from src.attacks.attack import PoisoningAttack
 from src.attacks.projected_gradient_descent import ProjectedGradientDescent
 from src.attacks.backdoor import PoisoningAttackBackdoor
 
 if TYPE_CHECKING:
-    from src.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
+    from src.preprocessing.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
 
 
 logger = logging.getLogger(__name__)
 
 
-class PoisoningAttackCleanLabelBackdoor(PoisoningAttackBlackBox):
+class PoisoningAttackCleanLabelBackdoor(PoisoningAttack):
     _estimator_requirements = ()
 
     def __init__(

@@ -28,8 +28,8 @@ from src.attacks.clean_label_backdoor import (
     PoisoningAttackBackdoor,
     PoisoningAttackCleanLabelBackdoor,
 )
-from src.attacks.utils import add_pattern_bd
-from src.utils import load_mnist, preprocess, to_categorical
+from src.attacks.utils import pattern_backdoor
+from src.preprocessing.utils import load_mnist, preprocess, to_categorical
 from src.defences.adversarial_trainer_madry_pgd import (
     AdversarialTrainerMadryPGD,
 )
@@ -81,7 +81,7 @@ def create_model():
     return model
 
 
-backdoor = PoisoningAttackBackdoor(add_pattern_bd)
+backdoor = PoisoningAttackBackdoor(pattern_backdoor)
 example_target = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
 pdata, plabels = backdoor.poison(x_test, y=example_target)
 
@@ -120,10 +120,9 @@ for i in range(len(poisoned)):
 
 warnings.filterwarnings("ignore")
 
-from src import config
-from src.utils import load_dataset, get_file
+from . import constants
+from src.preprocessing.utils import load_dataset, get_file
 # from src.estimators.classification.keras import KerasClassifier
-from src.attacks.fast_gradient import FastGradientMethod
 
 # from src.attacks.evasion import BasicIterativeMethod
 from src.defences.adversarial_trainer import AdversarialTrainer

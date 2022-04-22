@@ -3,7 +3,7 @@ from typing import Optional, Tuple, Union
 
 import numpy as np
 
-from src.config import FLOAT_NUMPY
+from constants import FLOAT_NUMPY
 from src.defences.preprocessor import Preprocessor
 
 logger = logging.getLogger(__name__)
@@ -61,19 +61,6 @@ class StandardisationMeanStd(Preprocessor):
         x: np.ndarray,
         y: Optional[np.ndarray] = None,
     ) -> Tuple[np.ndarray, Optional[np.ndarray]]:
-        """
-        Apply StandardisationMeanStd inputs `x`.
-
-        :param x: Input samples to standardise.
-        :param y: Label data, will not be affected by this preprocessing.
-        :return: Standardise input samples and unmodified labels.
-        """
-        if x.dtype in [np.uint8, np.uint16, np.uint32, np.uint64]:  # pragma: no cover
-            raise TypeError(
-                f"The data type of input data `x` is {x.dtype} and cannot represent negative values. Consider "
-                f"changing the data type of the input data `x` to a type that supports negative values e.g. "
-                f"np.float32."
-            )
 
         if self._broadcastable_mean is None:
             self._broadcastable_mean, self._broadcastable_std = broadcastable_mean_std(
@@ -87,15 +74,6 @@ class StandardisationMeanStd(Preprocessor):
         return x_norm, y
 
     def estimate_gradient(self, x: np.ndarray, grad: np.ndarray) -> np.ndarray:
-        """
-        Provide an estimate of the gradients of preprocessor for the backward pass. If the preprocessor is not
-        differentiable, this is an estimate of the gradient, most often replacing the computation performed by the
-        preprocessor with the identity function (the default).
-
-        :param x: Input data for which the gradient is estimated. First dimension is the batch size.
-        :param grad: Gradient value so far.
-        :return: The gradient (estimate) of the defence.
-        """
         _, std = broadcastable_mean_std(x, self.mean, self.std)
         gradient_back = grad / std
 

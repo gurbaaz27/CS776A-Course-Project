@@ -3,13 +3,13 @@ from typing import Callable, List, Optional, Tuple, Union
 
 import numpy as np
 
-from src.attacks.attack import PoisoningAttackBlackBox
+from src.attacks.attack import PoisoningAttack
 
 
 logger = logging.getLogger(__name__)
 
 
-class PoisoningAttackBackdoor(PoisoningAttackBlackBox):
+class PoisoningAttackBackdoor(PoisoningAttack):
     _estimator_requirements = ()
 
     def __init__(self, perturbation: Union[Callable, List[Callable]]) -> None:
@@ -21,19 +21,13 @@ class PoisoningAttackBackdoor(PoisoningAttackBlackBox):
         self, x: np.ndarray, y: Optional[np.ndarray] = None, broadcast=False, **kwargs
     ) -> Tuple[np.ndarray, np.ndarray]:
 
-        if y is None:
-            raise ValueError(
-                "Target labels `y` need to be provided for a targeted attack."
-            )
-
         if broadcast:
             y_attack = np.broadcast_to(y, (x.shape[0], y.shape[0]))
         else:
             y_attack = np.copy(y)
 
         num_poison = len(x)
-        if num_poison == 0:
-            raise ValueError("Must input at least one poison point.")
+
         poisoned = np.copy(x)
 
         if callable(self.perturbation):

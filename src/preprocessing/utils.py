@@ -6,8 +6,6 @@ import shutil
 import sys
 import tarfile
 import zipfile
-from functools import wraps
-from inspect import signature
 from typing import TYPE_CHECKING, List, Optional, Tuple, Union
 
 import numpy as np
@@ -15,7 +13,7 @@ import six
 from scipy.special import gammainc
 from tqdm.auto import tqdm
 
-from src import config
+from . import constants
 
 
 logger = logging.getLogger(__name__)
@@ -23,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 CLIP_VALUES_TYPE = Tuple[
     Union[int, float, np.ndarray], Union[int, float, np.ndarray]
-]  # pylint: disable=C0103
+]
 
 if TYPE_CHECKING:
     from src.defences.preprocessor import Preprocessor
@@ -69,20 +67,6 @@ if TYPE_CHECKING:
 def projection_l1_1(
     values: np.ndarray, eps: Union[int, float, np.ndarray]
 ) -> np.ndarray:
-    """
-    This function computes the orthogonal projections of a batch of points on L1-balls of given radii
-    The batch size is  m = values.shape[0].  The points are flattened to dimension
-    n = np.prod(value.shape[1:]).  This is required to facilitate sorting.
-
-    If a[0] <= ... <= a[n-1], then the projection can be characterized using the largest  j  such that
-    a[j+1] +...+ a[n-1] - a[j]*(n-j-1) >= eps. The  ith  coordinate of projection is equal to  0
-    if i=0,...,j.
-
-    :param values:  A batch of  m  points, each an ndarray
-    :param eps:  The radii of the respective L1-balls
-    :return: projections
-    """
-
     shp = values.shape
     a = values.copy()
     n = np.prod(a.shape[1:])
@@ -149,21 +133,6 @@ def projection_l1_1(
 def projection_l1_2(
     values: np.ndarray, eps: Union[int, float, np.ndarray]
 ) -> np.ndarray:
-    """
-    This function computes the orthogonal projections of a batch of points on L1-balls of given radii
-    The batch size is  m = values.shape[0].  The points are flattened to dimension
-    n = np.prod(value.shape[1:]).  This is required to facilitate sorting.
-
-    Starting from a vector  a = (a1,...,an)  such that  a1 >= ... >= an >= 0,  a1 + ... + an > 1,
-    we first move to  a' = a - (t,...,t)  such that either a1 + ... + an >= 1 ,  an >= 0,
-    and  min( a1 + ... + an  - nt - 1, an -t ) = 0.  This means  t = min( (a1 + ... + an - 1)/n, an).
-    If  t = (a1 + ... + an - 1)/n , then  a' is the desired projection.  Otherwise, the problem is reduced to
-    finding the projection of  (a1 - t, ... , a{n-1} - t ).
-
-    :param values:  A batch of  m  points, each an ndarray
-    :param eps:  The radii of the respective L1-balls
-    :return: projections
-    """
     shp = values.shape
     a = values.copy()
     n = np.prod(a.shape[1:])
@@ -207,17 +176,6 @@ def projection(
     eps: Union[int, float, np.ndarray],
     norm_p: Union[int, float, str],
 ) -> np.ndarray:
-    """
-    Project `values` on the L_p norm ball of size `eps`.
-
-    :param values: Array of perturbations to clip.
-    :param eps: Maximum norm allowed.
-    :param norm_p: L_p norm to use for clipping.
-            Only 1, 2 , `np.Inf` 1.1 and 1.2 supported for now.
-            1.1 and 1.2 compute orthogonal projections on l1-ball, using two different algorithms
-    :return: Values of `values` after projection.
-    """
-    # Pick a small scalar to avoid division by 0
     tol = 10e-8
     values_tmp = values.reshape((values.shape[0], -1))
 
@@ -323,13 +281,6 @@ def random_sphere(
 def to_categorical(
     labels: Union[np.ndarray, List[float]], nb_classes: Optional[int] = None
 ) -> np.ndarray:
-    """
-    Convert an array of labels to binary class matrix.
-
-    :param labels: An array of integer labels of shape `(nb_samples,)`.
-    :param nb_classes: The number of classes (possible labels).
-    :return: A binary matrix representation of `y` in the shape `(nb_samples, nb_classes)`.
-    """
     labels = np.array(labels, dtype=int)
     if nb_classes is None:
         nb_classes = np.max(labels) + 1
@@ -341,14 +292,6 @@ def to_categorical(
 def check_and_transform_label_format(
     labels: np.ndarray, nb_classes: Optional[int] = None, return_one_hot: bool = True
 ) -> np.ndarray:
-    """
-    Check label format and transform to one-hot-encoded labels if necessary
-
-    :param labels: An array of integer labels of shape `(nb_samples,)`, `(nb_samples, 1)` or `(nb_samples, nb_classes)`.
-    :param nb_classes: The number of classes.
-    :param return_one_hot: True if returning one-hot encoded labels, False if returning index labels.
-    :return: Labels with shape `(nb_samples, nb_classes)` (one-hot) or `(nb_samples,)` (index).
-    """
     labels_return = labels
 
     if len(labels.shape) == 2 and labels.shape[1] > 1:  # multi-class, one-hot encoded
@@ -388,12 +331,6 @@ def check_and_transform_label_format(
 
 
 def get_labels_np_array(preds: np.ndarray) -> np.ndarray:
-    """
-    Returns the label of the most probable class given a array of class confidences.
-
-    :param preds: Array of class confidences, nb of instances as first dimension.
-    :return: Labels.
-    """
     if len(preds.shape) >= 2:
         preds_max = np.amax(preds, axis=1, keepdims=True)
     else:
@@ -411,18 +348,7 @@ def compute_success_array(
     targeted: bool = False,
     batch_size: int = 1,
 ) -> float:
-    """
-    Compute the success rate of an attack based on clean samples, adversarial samples and targets or correct labels.
 
-    :param classifier: Classifier used for prediction.
-    :param x_clean: Original clean samples.
-    :param labels: Correct labels of `x_clean` if the attack is untargeted, or target labels of the attack otherwise.
-    :param x_adv: Adversarial samples to be evaluated.
-    :param targeted: `True` if the attack is targeted. In that case, `labels` are treated as target classes instead of
-           correct labels of the clean samples.
-    :param batch_size: Batch size.
-    :return: Percentage of successful adversarial samples.
-    """
     adv_preds = classifier.predict(x_adv, batch_size=batch_size)
     if len(adv_preds.shape) >= 2:
         adv_preds = np.argmax(adv_preds, axis=1)
@@ -449,18 +375,6 @@ def compute_success(
     targeted: bool = False,
     batch_size: int = 1,
 ) -> float:
-    """
-    Compute the success rate of an attack based on clean samples, adversarial samples and targets or correct labels.
-
-    :param classifier: Classifier used for prediction.
-    :param x_clean: Original clean samples.
-    :param labels: Correct labels of `x_clean` if the attack is untargeted, or target labels of the attack otherwise.
-    :param x_adv: Adversarial samples to be evaluated.
-    :param targeted: `True` if the attack is targeted. In that case, `labels` are treated as target classes instead of
-           correct labels of the clean samples.
-    :param batch_size: Batch size.
-    :return: Percentage of successful adversarial samples.
-    """
     attack_success = compute_success_array(
         classifier, x_clean, labels, x_adv, targeted, batch_size
     )
@@ -470,15 +384,6 @@ def compute_success(
 def compute_accuracy(
     preds: np.ndarray, labels: np.ndarray, abstain: bool = True
 ) -> Tuple[float, float]:
-    """
-    Compute the accuracy rate and coverage rate of predictions
-    In the case where predictions are abstained, those samples are ignored.
-
-    :param preds: Predictions.
-    :param labels: Correct labels of `x`.
-    :param abstain: True if ignore abstained prediction, False if count them as incorrect.
-    :return: Tuple of accuracy rate and coverage rate.
-    """
     has_pred = np.sum(preds, axis=1)
     idx_pred = np.where(has_pred)[0]
     labels = np.argmax(labels[idx_pred], axis=1)
@@ -496,20 +401,7 @@ def compute_accuracy(
 def load_cifar10(
     raw: bool = False,
 ):
-    """
-    Loads CIFAR10 dataset from config.CIFAR10_PATH or downloads it if necessary.
-
-    :param raw: `True` if no preprocessing should be applied to the data. Otherwise, data is normalized to 1.
-    :return: `(x_train, y_train), (x_test, y_test), min, max`
-    """
-
     def load_batch(fpath: str) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Utility function for loading CIFAR batches, as written in Keras.
-
-        :param fpath: Full path to the batch file.
-        :return: `(data, labels)`
-        """
         with open(fpath, "rb") as file_:
             if sys.version_info < (3,):
                 content = six.moves.cPickle.load(file_)
@@ -528,7 +420,7 @@ def load_cifar10(
     path = get_file(
         "cifar-10-batches-py",
         extract=True,
-        path=config.DATASET_PATH,
+        path=constants.DATASET_PATH,
         url="https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz",
     )
 
@@ -564,15 +456,9 @@ def load_cifar10(
 def load_mnist(
     raw: bool = False,
 ):
-    """
-    Loads MNIST dataset from `config.DATASET_PATH` or downloads it if necessary.
-
-    :param raw: `True` if no preprocessing should be applied to the data. Otherwise, data is normalized to 1.
-    :return: `(x_train, y_train), (x_test, y_test), min, max`.
-    """
     path = get_file(
         "mnist.npz",
-        path=config.DATASET_PATH,
+        path=constants.DATASET_PATH,
         url="https://s3.amazonaws.com/img-datasets/mnist.npz",
     )
 
@@ -630,20 +516,8 @@ def get_file(
     extract: bool = False,
     verbose: bool = False,
 ) -> str:
-    """
-    Downloads a file from a URL if it not already in the cache. The file at indicated by `url` is downloaded to the
-    path `path` (default is ~/.art/data). and given the name `filename`. Files in tar, tar.gz, tar.bz, and zip formats
-    can also be extracted. This is a simplified version of the function with the same name in Keras.
-
-    :param filename: Name of the file.
-    :param url: Download URL.
-    :param path: Folder to store the download. If not specified, `~/.art/data` is used instead.
-    :param extract: If true, tries to extract the archive.
-    :param verbose: If true, print download progress bar.
-    :return: Path to the downloaded file.
-    """
     if path is None:
-        path_ = os.path.expanduser(config.DATASET_PATH)
+        path_ = os.path.expanduser(constants.DATASET_PATH)
     else:
         path_ = os.path.expanduser(path)
     if not os.access(path_, os.W_OK):

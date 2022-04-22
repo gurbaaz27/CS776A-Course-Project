@@ -8,8 +8,8 @@ from tqdm.auto import trange, tqdm
 
 
 if TYPE_CHECKING:
-    from src.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
-    from src.attacks.attack import EvasionAttack
+    from src.preprocessing.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
+    from src.attacks.attack import AdversarialAttack
     from src.preprocessing.datagen import DataGenerator
 
 logger = logging.getLogger(__name__)
@@ -20,19 +20,19 @@ class AdversarialTrainer:
     def __init__(
         self,
         classifier: "CLASSIFIER_LOSS_GRADIENTS_TYPE",
-        attacks: Union["EvasionAttack", List["EvasionAttack"]],
+        attacks: Union["AdversarialAttack", List["AdversarialAttack"]],
         ratio: float = 0.5,
     ) -> None:
-        from src.attacks.attack import EvasionAttack
+        from src.attacks.attack import AdversarialAttack
 
         self._classifier = classifier
-        if isinstance(attacks, EvasionAttack):
+        if isinstance(attacks, AdversarialAttack):
             self.attacks = [attacks]
         elif isinstance(attacks, list):
             self.attacks = attacks
         else:
             raise ValueError(
-                "Only EvasionAttack instances or list of attacks supported."
+                "Only AdversarialAttack instances or list of attacks supported."
             )
 
         if ratio <= 0 or ratio > 1:
@@ -63,7 +63,6 @@ class AdversarialTrainer:
         logged = False
         self._precomputed_adv_samples = []
         for attack in tqdm(self.attacks, desc="Precompute adversarial examples."):
-            attack.set_params(verbose=False)
 
             if attack.estimator != self._classifier:
                 if not logged:
@@ -95,7 +94,6 @@ class AdversarialTrainer:
 
                 # Choose indices to replace with adversarial samples
                 attack = self.attacks[attack_id]
-                attack.set_params(verbose=False)
 
                 # If source and target models are the same, craft fresh adversarial samples
                 if attack.estimator == self._classifier:
@@ -165,7 +163,6 @@ class AdversarialTrainer:
         logged = False
         self._precomputed_adv_samples = []
         for attack in tqdm(self.attacks, desc="Precompute adv samples"):
-            attack.set_params(verbose=False)
 
             if attack.estimator != self._classifier:
                 if not logged:
@@ -197,7 +194,6 @@ class AdversarialTrainer:
                 # Choose indices to replace with adversarial samples
                 nb_adv = int(np.ceil(self.ratio * x_batch.shape[0]))
                 attack = self.attacks[attack_id]
-                attack.set_params(verbose=False)
                 if self.ratio < 1:
                     adv_ids = np.random.choice(
                         x_batch.shape[0], size=nb_adv, replace=False

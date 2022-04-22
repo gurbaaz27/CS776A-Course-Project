@@ -4,7 +4,7 @@ import numpy as np
 from PIL import Image
 
 
-def add_single_bd(x: np.ndarray, distance: int = 2, pixel_value: int = 1) -> np.ndarray:
+def single_backdoor(x: np.ndarray, distance: int = 2, pixel_value: int = 1) -> np.ndarray:
     """
     Augments a matrix by setting value some `distance` away from the bottom-right edge to 1. Works for single images
     or a batch of images.
@@ -30,7 +30,7 @@ def add_single_bd(x: np.ndarray, distance: int = 2, pixel_value: int = 1) -> np.
     return x
 
 
-def add_pattern_bd(
+def pattern_backdoor(
     x: np.ndarray, distance: int = 2, pixel_value: int = 1
 ) -> np.ndarray:
     """

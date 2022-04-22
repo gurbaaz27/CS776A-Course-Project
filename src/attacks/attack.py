@@ -31,11 +31,8 @@ class Attack(abc.ABC):
     def estimator_requirements(self):
         return self._estimator_requirements
 
-    def set_params(self, **kwargs) -> None:
-        pass
 
-
-class EvasionAttack(Attack):
+class AdversarialAttack(Attack):
 
     def __init__(self, **kwargs) -> None:
         self._targeted = False
@@ -56,7 +53,7 @@ class EvasionAttack(Attack):
         self._targeted = targeted
 
 
-class PoisoningAttackBlackBox(Attack):
+class PoisoningAttack(Attack):
 
     def __init__(self):
         super().__init__(None)  # type: ignore

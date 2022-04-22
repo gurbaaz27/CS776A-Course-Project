@@ -7,12 +7,12 @@ from scipy.stats import truncnorm
 from tqdm.auto import trange
 
 from src.classifiers.estimator import BaseEstimator, LossGradientsMixin
-from src.attacks.attack import EvasionAttack
+from src.attacks.attack import AdversarialAttack
 from src.attacks.fast_gradient import FastGradientMethod
-from src.config import FLOAT_NUMPY
+from constants import FLOAT_NUMPY
 from src.classifiers.classifier import ClassifierMixin
 from src.classifiers.estimator import BaseEstimator, LossGradientsMixin
-from src.utils import (
+from src.preprocessing.utils import (
     compute_success,
     get_labels_np_array,
     check_and_transform_label_format,
@@ -20,12 +20,12 @@ from src.utils import (
 )
 
 if TYPE_CHECKING:
-    from src.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
+    from src.preprocessing.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
 
 logger = logging.getLogger(__name__)
 
 
-class ProjectedGradientDescent(EvasionAttack):
+class ProjectedGradientDescent(AdversarialAttack):
     _estimator_requirements = (BaseEstimator, LossGradientsMixin)
 
     def __init__(
@@ -70,12 +70,7 @@ class ProjectedGradientDescent(EvasionAttack):
         self, x: np.ndarray, y: Optional[np.ndarray] = None, **kwargs
     ) -> np.ndarray:
         logger.info("Creating adversarial samples.")
-        print(self._attack.__dict__)
         return self._attack.generate(x=x, y=y, **kwargs)
-
-    def set_params(self, **kwargs) -> None:
-        super().set_params(**kwargs)
-        self._attack.set_params(**kwargs)
 
 
 class ProjectedGradientDescentCommon(FastGradientMethod):

@@ -5,11 +5,11 @@ from typing import Optional, Union, TYPE_CHECKING
 
 import numpy as np
 
-from src.config import FLOAT_NUMPY
-from src.attacks.attack import EvasionAttack
+from constants import FLOAT_NUMPY
+from src.attacks.attack import AdversarialAttack
 from src.classifiers.estimator import BaseEstimator, LossGradientsMixin
 from src.classifiers.classifier import ClassifierMixin
-from src.utils import (
+from src.preprocessing.utils import (
     compute_success,
     get_labels_np_array,
     random_sphere,
@@ -18,12 +18,12 @@ from src.utils import (
 )
 
 if TYPE_CHECKING:
-    from src.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
+    from src.preprocessing.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
 
 logger = logging.getLogger(__name__)
 
 
-class FastGradientMethod(EvasionAttack):
+class FastGradientMethod(AdversarialAttack):
 
     _estimator_requirements = (BaseEstimator, LossGradientsMixin)
 

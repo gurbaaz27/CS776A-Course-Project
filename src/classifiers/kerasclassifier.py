@@ -18,19 +18,19 @@ from typing import (
 import numpy as np
 import six
 
-from src import config
+from . import constants
 from src.classifiers.keras import KerasEstimator
 from src.classifiers.classifier import (
     ClassifierMixin,
     ClassGradientsMixin,
 )
-from src.utils import check_and_transform_label_format
+from src.preprocessing.utils import check_and_transform_label_format
 
 if TYPE_CHECKING:
     import keras
     import tensorflow as tf
 
-    from src.utils import CLIP_VALUES_TYPE, PREPROCESSING_TYPE
+    from src.preprocessing.utils import CLIP_VALUES_TYPE, PREPROCESSING_TYPE
     from src.preprocessing.datagen import DataGenerator
     from src.defences.preprocessor import Preprocessor
     from src.defences.postprocessor import Postprocessor
@@ -628,7 +628,7 @@ class KerasClassifier(ClassGradientsMixin, ClassifierMixin, KerasEstimator):
         from src.preprocessing.datagen import KerasDataGenerator
 
         # Try to use the generator as a Keras native generator, otherwise use it through the `DataGenerator` interface
-        from src.preprocessing.standardisation_mean_std import StandardisationMeanStd
+        from preprocessing.mean_std import StandardisationMeanStd
 
         if isinstance(generator, KerasDataGenerator) and (
             self.preprocessing is None
@@ -680,7 +680,7 @@ class KerasClassifier(ClassGradientsMixin, ClassifierMixin, KerasEstimator):
             import tensorflow.keras.backend as k  # pylint: disable=E0611
         else:
             import keras.backend as k
-        from src.config import FLOAT_NUMPY
+        from constants import FLOAT_NUMPY
 
         if isinstance(layer, six.string_types):
             if layer not in self._layer_names:  # pragma: no cover
@@ -853,7 +853,7 @@ class KerasClassifier(ClassGradientsMixin, ClassifierMixin, KerasEstimator):
                      the default data location of the library `DATASET_PATH`.
         """
         if path is None:
-            full_path = os.path.join(config.DATASET_PATH, filename)
+            full_path = os.path.join(constants.DATASET_PATH, filename)
         else:
             full_path = os.path.join(path, filename)
         folder = os.path.split(full_path)[0]
@@ -915,7 +915,7 @@ class KerasClassifier(ClassGradientsMixin, ClassifierMixin, KerasEstimator):
         else:
             from keras.models import load_model
 
-        full_path = os.path.join(config.DATASET_PATH, state["model_name"])
+        full_path = os.path.join(constants.DATASET_PATH, state["model_name"])
         model = load_model(str(full_path))
 
         self._model = model

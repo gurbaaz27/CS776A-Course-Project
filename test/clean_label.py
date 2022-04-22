@@ -44,8 +44,8 @@ from src.attacks.clean_label_backdoor import (
     PoisoningAttackBackdoor,
     PoisoningAttackCleanLabelBackdoor,
 )
-from src.attacks.utils import add_pattern_bd
-from src.utils import load_mnist, preprocess, to_categorical
+from src.attacks.utils import pattern_backdoor
+from src.preprocessing.utils import load_mnist, preprocess, to_categorical
 from src.defences.adversarial_trainer_madry_pgd import (
     AdversarialTrainerMadryPGD,
 )
@@ -92,7 +92,7 @@ def create_model():
     model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
 
-backdoor = PoisoningAttackBackdoor(add_pattern_bd)
+backdoor = PoisoningAttackBackdoor(pattern_backdoor)
 example_target = np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 1])
 pdata, plabels = backdoor.poison(x_test, y=example_target)
 
@@ -104,7 +104,7 @@ targets = to_categorical([9], 10)[0]
 proxy = AdversarialTrainerMadryPGD(KerasClassifier(create_model()), nb_epochs=10, eps=0.15, eps_step=0.001)
 proxy.fit(x_train, y_train)
 
-backdoor = PoisoningAttackBackdoor(add_pattern_bd)
+backdoor = PoisoningAttackBackdoor(pattern_backdoor)
 attack = PoisoningAttackCleanLabelBackdoor(backdoor=backdoor, trained_classifier=proxy.get_classifier(),
                                            target=targets, pp_poison=percent_poison, norm=2, eps=5,
                                            eps_step=0.1, max_iter=200)

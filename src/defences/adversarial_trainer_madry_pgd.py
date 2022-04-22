@@ -7,7 +7,7 @@ from src.defences.adversarial_trainer import AdversarialTrainer
 from src.attacks.projected_gradient_descent import ProjectedGradientDescent
 
 if TYPE_CHECKING:
-    from src.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
+    from src.preprocessing.utils import CLASSIFIER_LOSS_GRADIENTS_TYPE
 
 
 logger = logging.getLogger(__name__)
