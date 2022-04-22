@@ -521,7 +521,7 @@ def get_file(
     else:
         path_ = os.path.expanduser(path)
     if not os.access(path_, os.W_OK):
-        path_ = os.path.join("/tmp", ".art")
+        path_ = os.path.join("/tmp", ".xyz")
 
     if not os.path.exists(path_):
         os.makedirs(path_)

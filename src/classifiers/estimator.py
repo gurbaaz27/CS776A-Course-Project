@@ -15,10 +15,6 @@ if TYPE_CHECKING:
 
 
 class BaseEstimator(ABC):
-    """
-    The abstract base class `BaseEstimator` defines the basic requirements of an estimator in ART. The BaseEstimator is
-    is the highest abstraction of a machine learning model in ART.
-    """
 
     estimator_params = [
         "model",
