@@ -18,7 +18,7 @@
 2. Fast Gradient : <https://arxiv.org/abs/1412.6572>
 3. Poisoning Backdoor Attack : <https://arxiv.org/abs/1708.06733>
 4. Clean Label Backdoor Attack : <https://people.csail.mit.edu/madry/lab/cleanlabel.pdf> 
-
+5. Adversarial Trainer: <https://arxiv.org/abs/1705.07204>
 
 ## Colab Notebooks
 
