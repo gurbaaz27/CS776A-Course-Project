@@ -3,11 +3,10 @@ from typing import List, Optional, Union
 
 import numpy as np
 
-from src.estimators.estimator import (
+from src.classifiers.estimator import (
     BaseEstimator,
     NeuralNetworkMixin,
     LossGradientsMixin,
-    DecisionTreeMixin,
 )
 
 
@@ -40,7 +39,9 @@ class InputFilter(ABCMeta):
                         lst[0] = np.array(args[0])
 
                 if "y" in kwargs:  # pragma: no cover
-                    if kwargs["y"] is not None and not isinstance(kwargs["y"], np.ndarray):
+                    if kwargs["y"] is not None and not isinstance(
+                        kwargs["y"], np.ndarray
+                    ):
                         kwargs["y"] = np.array(kwargs["y"])
                 elif has_y:  # pragma: no cover
                     if not isinstance(args[1], np.ndarray):
@@ -106,7 +107,9 @@ class ClassGradientsMixin(ABC):
     """
 
     @abstractmethod
-    def class_gradient(self, x: np.ndarray, label: Optional[Union[int, List[int]]] = None, **kwargs) -> np.ndarray:
+    def class_gradient(
+        self, x: np.ndarray, label: Optional[Union[int, List[int]]] = None, **kwargs
+    ) -> np.ndarray:
         """
         Compute per-class derivatives w.r.t. `x`.
 
@@ -139,7 +142,9 @@ class ClassifierLossGradients(ClassifierMixin, LossGradientsMixin, BaseEstimator
     estimator_params = BaseEstimator.estimator_params + ClassifierMixin.estimator_params
 
 
-class ClassifierClassLossGradients(ClassGradientsMixin, ClassifierMixin, LossGradientsMixin, BaseEstimator, ABC):
+class ClassifierClassLossGradients(
+    ClassGradientsMixin, ClassifierMixin, LossGradientsMixin, BaseEstimator, ABC
+):
     """
     Typing variable definition.
     """
@@ -148,14 +153,21 @@ class ClassifierClassLossGradients(ClassGradientsMixin, ClassifierMixin, LossGra
 
 
 class ClassifierNeuralNetwork(  # lgtm [py/conflicting-attributes]
-    ClassGradientsMixin, ClassifierMixin, LossGradientsMixin, NeuralNetworkMixin, BaseEstimator, ABC
+    ClassGradientsMixin,
+    ClassifierMixin,
+    LossGradientsMixin,
+    NeuralNetworkMixin,
+    BaseEstimator,
+    ABC,
 ):
     """
     Typing variable definition.
     """
 
     estimator_params = (
-        BaseEstimator.estimator_params + NeuralNetworkMixin.estimator_params + ClassifierMixin.estimator_params
+        BaseEstimator.estimator_params
+        + NeuralNetworkMixin.estimator_params
+        + ClassifierMixin.estimator_params
     )
 
     @abstractmethod
@@ -166,14 +178,6 @@ class ClassifierNeuralNetwork(  # lgtm [py/conflicting-attributes]
 
         :param filename: Name of the file where to store the model.
         :param path: Path of the folder where to store the model. If no path is specified, the model will be stored in
-                     the default data location of the library `ART_DATA_PATH`.
+                     the default data location of the library `DATASET_PATH`.
         """
         raise NotImplementedError
-
-
-class ClassifierDecisionTree(DecisionTreeMixin, ClassifierMixin, BaseEstimator, ABC):
-    """
-    Typing variable definition.
-    """
-
-    estimator_params = BaseEstimator.estimator_params + ClassifierMixin.estimator_params

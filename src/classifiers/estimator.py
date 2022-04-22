@@ -1,36 +1,15 @@
-# MIT License
-#
-# Copyright (C) The Adversarial Robustness Toolbox (ART) Authors 2020
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-# Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-"""
-This module implements abstract base and mixin classes for estimators in ART.
-"""
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union, TYPE_CHECKING
 
 import numpy as np
 from tqdm.auto import trange
 
-from src.config import ART_NUMPY_DTYPE
+from src.config import FLOAT_NUMPY
 
 if TYPE_CHECKING:
     # pylint: disable=R0401
     from src.utils import CLIP_VALUES_TYPE, PREPROCESSING_TYPE
-    from src.data_generators import DataGenerator
-    from src.metrics.verification_decisions_trees import Tree
+    from src.preprocessing.datagen import DataGenerator
     from src.defences.postprocessor import Postprocessor
     from src.defences.preprocessor import Preprocessor
 
@@ -53,8 +32,12 @@ class BaseEstimator(ABC):
         self,
         model,
         clip_values: Optional["CLIP_VALUES_TYPE"],
-        preprocessing_defences: Union["Preprocessor", List["Preprocessor"], None] = None,
-        postprocessing_defences: Union["Postprocessor", List["Postprocessor"], None] = None,
+        preprocessing_defences: Union[
+            "Preprocessor", List["Preprocessor"], None
+        ] = None,
+        postprocessing_defences: Union[
+            "Postprocessor", List["Postprocessor"], None
+        ] = None,
         preprocessing: Union["PREPROCESSING_TYPE", "Preprocessor"] = (0.0, 1.0),
     ):
         """
@@ -75,11 +58,14 @@ class BaseEstimator(ABC):
         self._clip_values = clip_values
 
         self.preprocessing = self._set_preprocessing(preprocessing)
-        self.preprocessing_defences = self._set_preprocessing_defences(preprocessing_defences)
-        self.postprocessing_defences = self._set_postprocessing_defences(postprocessing_defences)
+        self.preprocessing_defences = self._set_preprocessing_defences(
+            preprocessing_defences
+        )
+        self.postprocessing_defences = self._set_postprocessing_defences(
+            postprocessing_defences
+        )
         self.preprocessing_operations: List["Preprocessor"] = []
         BaseEstimator._update_preprocessing_operations(self)
-        BaseEstimator._check_params(self)
 
     def _update_preprocessing_operations(self):
         from src.defences.preprocessor import Preprocessor
@@ -96,10 +82,14 @@ class BaseEstimator(ABC):
         if self.preprocessing is None:
             pass
         elif isinstance(self.preprocessing, tuple):
-            from src.preprocessing.standardisation_mean_std.numpy import StandardisationMeanStd
+            from src.preprocessing.standardisation_mean_std import (
+                StandardisationMeanStd,
+            )
 
             self.preprocessing_operations.append(
-                StandardisationMeanStd(mean=self.preprocessing[0], std=self.preprocessing[1])
+                StandardisationMeanStd(
+                    mean=self.preprocessing[0], std=self.preprocessing[1]
+                )
             )
         elif isinstance(self.preprocessing, Preprocessor):
             self.preprocessing_operations.append(self.preprocessing)
@@ -115,7 +105,9 @@ class BaseEstimator(ABC):
         if preprocessing is None:
             return None
         if isinstance(preprocessing, tuple):
-            from src.preprocessing.standardisation_mean_std.numpy import StandardisationMeanStd
+            from src.preprocessing.standardisation_mean_std import (
+                StandardisationMeanStd,
+            )
 
             return StandardisationMeanStd(mean=preprocessing[0], std=preprocessing[1])  # type: ignore
         if isinstance(preprocessing, Preprocessor):
@@ -153,7 +145,9 @@ class BaseEstimator(ABC):
         """
         for key, value in kwargs.items():
             if key in self.estimator_params:
-                if hasattr(type(self), key) and isinstance(getattr(type(self), key), property):
+                if hasattr(type(self), key) and isinstance(
+                    getattr(type(self), key), property
+                ):
                     if getattr(type(self), key).fset is not None:
                         setattr(self, key, value)
                     else:
@@ -172,7 +166,6 @@ class BaseEstimator(ABC):
             else:  # pragma: no cover
                 raise ValueError(f"Unexpected parameter `{key}` found in kwargs.")
         self._update_preprocessing_operations()
-        self._check_params()
 
     def get_params(self) -> Dict[str, Any]:
         """
@@ -185,53 +178,10 @@ class BaseEstimator(ABC):
             params[key] = getattr(self, key)
         return params
 
-    def _check_params(self) -> None:
-        from src.defences.postprocessor import Postprocessor
-        from src.defences.preprocessor import Preprocessor
-
-        if self._clip_values is not None:
-            if len(self._clip_values) != 2:  # pragma: no cover
-                raise ValueError(
-                    "`clip_values` should be a tuple of 2 floats or arrays containing the allowed data range."
-                )
-            if np.array(self._clip_values[0] >= self._clip_values[1]).any():  # pragma: no cover
-                raise ValueError("Invalid `clip_values`: min >= max.")
-
-            if isinstance(self._clip_values, np.ndarray):
-                self._clip_values = self._clip_values.astype(ART_NUMPY_DTYPE)
-            else:
-                self._clip_values = np.array(self._clip_values, dtype=ART_NUMPY_DTYPE)  # type: ignore
-
-        if isinstance(self.preprocessing_operations, list):
-            for preprocess in self.preprocessing_operations:
-                if not isinstance(preprocess, Preprocessor):  # pragma: no cover
-                    raise ValueError(
-                        "All preprocessing defences have to be instance of "
-                        "art.defences.preprocessor.preprocessor.Preprocessor."
-                    )
-        else:  # pragma: no cover
-            raise ValueError(
-                "All preprocessing defences have to be instance of "
-                "art.defences.preprocessor.preprocessor.Preprocessor."
-            )
-
-        if isinstance(self.postprocessing_defences, list):
-            for postproc_defence in self.postprocessing_defences:
-                if not isinstance(postproc_defence, Postprocessor):  # pragma: no cover
-                    raise ValueError(
-                        "All postprocessing defences have to be instance of "
-                        "art.defences.postprocessor.postprocessor.Postprocessor."
-                    )
-        elif self.postprocessing_defences is None:
-            pass
-        else:  # pragma: no cover
-            raise ValueError(
-                "All postprocessing defences have to be instance of "
-                "art.defences.postprocessor.postprocessor.Postprocessor."
-            )
-
     @abstractmethod
-    def predict(self, x, **kwargs) -> Any:  # lgtm [py/inheritance/incorrect-overridden-signature]
+    def predict(
+        self, x, **kwargs
+    ) -> Any:  # lgtm [py/inheritance/incorrect-overridden-signature]
         """
         Perform prediction of the estimator for input `x`.
 
@@ -243,7 +193,9 @@ class BaseEstimator(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fit(self, x, y, **kwargs) -> None:  # lgtm [py/inheritance/incorrect-overridden-signature]
+    def fit(
+        self, x, y, **kwargs
+    ) -> None:  # lgtm [py/inheritance/incorrect-overridden-signature]
         """
         Fit the estimator using the training data `(x, y)`.
 
@@ -425,7 +377,9 @@ class NeuralNetworkMixin(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def fit(self, x: np.ndarray, y, batch_size: int = 128, nb_epochs: int = 20, **kwargs) -> None:
+    def fit(
+        self, x: np.ndarray, y, batch_size: int = 128, nb_epochs: int = 20, **kwargs
+    ) -> None:
         """
         Fit the model of the estimator on the training data `x` and `y`.
 
@@ -438,7 +392,9 @@ class NeuralNetworkMixin(ABC):
         """
         raise NotImplementedError
 
-    def fit_generator(self, generator: "DataGenerator", nb_epochs: int = 20, **kwargs) -> None:
+    def fit_generator(
+        self, generator: "DataGenerator", nb_epochs: int = 20, **kwargs
+    ) -> None:
         """
         Fit the estimator using a `generator` yielding training batches. Implementations can
         provide framework-specific versions of this function to speed-up computation.
@@ -446,7 +402,7 @@ class NeuralNetworkMixin(ABC):
         :param generator: Batch generator providing `(x, y)` for each epoch.
         :param nb_epochs: Number of training epochs.
         """
-        from src.data_generators import DataGenerator
+        from src.preprocessing.datagen import DataGenerator
 
         if not isinstance(generator, DataGenerator):
             raise ValueError(
@@ -464,7 +420,11 @@ class NeuralNetworkMixin(ABC):
 
     @abstractmethod
     def get_activations(
-        self, x: np.ndarray, layer: Union[int, str], batch_size: int, framework: bool = False
+        self,
+        x: np.ndarray,
+        layer: Union[int, str],
+        batch_size: int,
+        framework: bool = False,
     ) -> np.ndarray:
         """
         Return the output of a specific layer for samples `x` where `layer` is the index of the layer between 0 and
@@ -511,19 +471,3 @@ class NeuralNetworkMixin(ABC):
         repr_ = name + "(" + ", ".join(attrs) + ")"
 
         return repr_
-
-
-class DecisionTreeMixin(ABC):
-    """
-    Mixin abstract base class defining additional functionality for decision-tree-based estimators. This mixin abstract
-    base class has to be mixed in with class `BaseEstimator`.
-    """
-
-    @abstractmethod
-    def get_trees(self) -> List["Tree"]:
-        """
-        Get the decision trees.
-
-        :return: A list of decision trees.
-        """
-        raise NotImplementedError

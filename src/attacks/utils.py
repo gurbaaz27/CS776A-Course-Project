@@ -1,23 +1,3 @@
-# MIT License
-#
-# Copyright (C) The Adversarial Robustness Toolbox (ART) Authors 2020
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-# Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-"""
-Adversarial perturbations designed to work for images.
-"""
 from typing import Optional, Tuple
 
 import numpy as np
@@ -50,7 +30,9 @@ def add_single_bd(x: np.ndarray, distance: int = 2, pixel_value: int = 1) -> np.
     return x
 
 
-def add_pattern_bd(x: np.ndarray, distance: int = 2, pixel_value: int = 1) -> np.ndarray:
+def add_pattern_bd(
+    x: np.ndarray, distance: int = 2, pixel_value: int = 1
+) -> np.ndarray:
     """
     Augments a matrix by setting a checkboard-like pattern of values some `distance` away from the bottom-right
     edge to 1. Works for single images or a batch of images.
@@ -116,7 +98,17 @@ def insert_image(
     if n_dim == 4:
         return np.array(
             [
-                insert_image(single_img, backdoor_path, channels_first, random, x_shift, y_shift, size, mode, blend)
+                insert_image(
+                    single_img,
+                    backdoor_path,
+                    channels_first,
+                    random,
+                    x_shift,
+                    y_shift,
+                    size,
+                    mode,
+                    blend,
+                )
                 for single_img in x
             ]
         )
@@ -136,7 +128,9 @@ def insert_image(
     backdoored_img = Image.new("RGBA", (width, height), 0)
 
     if no_color:
-        backdoored_input = Image.fromarray((data * 255).astype("uint8").squeeze(axis=2), mode=mode)
+        backdoored_input = Image.fromarray(
+            (data * 255).astype("uint8").squeeze(axis=2), mode=mode
+        )
     else:
         backdoored_input = Image.fromarray((data * 255).astype("uint8"), mode=mode)
 

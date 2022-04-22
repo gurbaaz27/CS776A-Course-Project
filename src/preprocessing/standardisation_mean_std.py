@@ -1,33 +1,29 @@
-# MIT License
-#
-# Copyright (C) The Adversarial Robustness Toolbox (ART) Authors 2020
-#
-# Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
-# documentation files (the "Software"), to deal in the Software without restriction, including without limitation the
-# rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
-# persons to whom the Software is furnished to do so, subject to the following conditions:
-#
-# The above copyright notice and this permission notice shall be included in all copies or substantial portions of the
-# Software.
-#
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
-# WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-"""
-This module implements the standardisation with mean and standard deviation.
-"""
 import logging
 from typing import Optional, Tuple, Union
 
 import numpy as np
 
-from src.config import ART_NUMPY_DTYPE
+from src.config import FLOAT_NUMPY
 from src.defences.preprocessor import Preprocessor
-from src.preprocessing.standardisation_mean_std.utils import broadcastable_mean_std
 
 logger = logging.getLogger(__name__)
+
+
+def broadcastable_mean_std(
+    x: np.ndarray, mean: np.ndarray, std: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
+
+    if mean.ndim == 1 and mean.shape[0] > 1 and mean.shape[0] != x.shape[-1]:
+        # allow input shapes NC* (batch) and C* (non-batch)
+        channel_idx = 1 if x.shape[1] == mean.shape[0] else 0
+        broadcastable_shape = [1] * x.ndim
+        broadcastable_shape[channel_idx] = mean.shape[0]
+
+        # expand mean and std to new shape
+        mean = mean.reshape(broadcastable_shape)
+        std = std.reshape(broadcastable_shape)
+
+    return mean, std
 
 
 class StandardisationMeanStd(Preprocessor):
@@ -50,10 +46,11 @@ class StandardisationMeanStd(Preprocessor):
         :param mean: Mean.
         :param std: Standard Deviation.
         """
-        super().__init__(is_fitted=True, apply_fit=apply_fit, apply_predict=apply_predict)
-        self.mean = np.asarray(mean, dtype=ART_NUMPY_DTYPE)
-        self.std = np.asarray(std, dtype=ART_NUMPY_DTYPE)
-        self._check_params()
+        super().__init__(
+            is_fitted=True, apply_fit=apply_fit, apply_predict=apply_predict
+        )
+        self.mean = np.asarray(mean, dtype=FLOAT_NUMPY)
+        self.std = np.asarray(std, dtype=FLOAT_NUMPY)
 
         # init broadcastable mean and std for lazy loading
         self._broadcastable_mean: Optional[np.ndarray] = None
@@ -79,11 +76,13 @@ class StandardisationMeanStd(Preprocessor):
             )
 
         if self._broadcastable_mean is None:
-            self._broadcastable_mean, self._broadcastable_std = broadcastable_mean_std(x, self.mean, self.std)
+            self._broadcastable_mean, self._broadcastable_std = broadcastable_mean_std(
+                x, self.mean, self.std
+            )
 
         x_norm = x - self._broadcastable_mean
         x_norm = x_norm / self._broadcastable_std
-        x_norm = x_norm.astype(ART_NUMPY_DTYPE)
+        x_norm = x_norm.astype(FLOAT_NUMPY)
 
         return x_norm, y
 
@@ -101,12 +100,3 @@ class StandardisationMeanStd(Preprocessor):
         gradient_back = grad / std
 
         return gradient_back
-
-    def _check_params(self) -> None:
-        pass
-
-    def __repr__(self):
-        return (
-            f"StandardisationMeanStd(mean={self.mean}, std={self.std}, apply_fit={self.apply_fit}, "
-            f"apply_predict={self.apply_predict})"
-        )

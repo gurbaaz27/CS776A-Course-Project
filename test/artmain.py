@@ -80,7 +80,7 @@ targets = to_categorical([9], 10)[0]
 proxy = AdversarialTrainerMadryPGD(KerasClassifier(create_model()), nb_epochs=10, eps=0.15, eps_step=0.001)
 proxy.fit(x_train, y_train)
 
-attack = PoisoningAttackCleanLabelBackdoor(backdoor=backdoor, proxy_classifier=proxy.get_classifier(),
+attack = PoisoningAttackCleanLabelBackdoor(backdoor=backdoor, trained_classifier=proxy.get_classifier(),
                                            target=targets, pp_poison=percent_poison, norm=2, eps=5,
                                            eps_step=0.1, max_iter=200)
 pdata, plabels = attack.poison(x_train, y_train)
