@@ -10,7 +10,9 @@
 
 ## Code 
 
+- Final Report is present in `docs/` directory.
 - Colab notebooks are present in offline form in `noteboooks/` directory. You may upload them on `colab` to run, or simply install all the dependencies to run locally.
+- Trained weights are present in `weights/` directory. 
 - The attacks and trainers have been implemented and are present in `src/` directory.
 - Sample tests showing how to import and run code from `src/` are present in `test/` directory.
 - To install the dependencies present in `requirements.txt`, run the following code
