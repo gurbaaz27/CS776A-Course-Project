@@ -10,7 +10,8 @@
 
 ## Code 
 
-- Final Report is present in `docs/` directory.
+- Final Report is present as `CS776_Project_Report_grp1.pdf`
+- Presentations are present in `presentations/` directory.
 - Colab notebooks are present in offline form in `noteboooks/` directory. You may upload them on `colab` to run, or simply install all the dependencies to run locally.
 - Trained weights are present in `weights/` directory. 
 - The attacks and trainers have been implemented and are present in `src/` directory.
