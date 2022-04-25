@@ -4,11 +4,22 @@
 
 1. [Code](#code)
 2. [Implementation References](#implementation-references)
-3. [Colab Notebooks](#colab-notebooks)
-4. [Presentations](#presentations)
-5. [Team Details](#team-details)
+<!-- 3. [Colab Notebooks](#colab-notebooks) -->
+3. [Presentations](#presentations)
+4. [Team Details](#team-details)
 
 ## Code 
+
+- Colab notebooks are present in offline form in `noteboooks/` directory. You may upload them on `colab` to run, or simply install all the dependencies to run locally.
+- The attacks and trainers have been implemented and are present in `src/` directory.
+- Sample tests showing how to import and run code from `src/` are present in `test/` directory.
+- To install the dependencies present in `requirements.txt`, run the following code
+
+```
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
 
 ## Implementation References
 
@@ -20,7 +31,7 @@
 4. Clean Label Backdoor Attack : <https://people.csail.mit.edu/madry/lab/cleanlabel.pdf> 
 5. Adversarial Trainer: <https://arxiv.org/abs/1705.07204>
 
-## Colab Notebooks
+<!-- ## Colab Notebooks
 
 - <https://colab.research.google.com/drive/1st-2urEYh3zUzRjQHLk8mF21CRW-j48j>
 - <https://colab.research.google.com/drive/1LsGm57CCM59XZsBnDemfA8BAb9bsFvc5>
@@ -31,7 +42,7 @@
 - <https://colab.research.google.com/drive/1C0GY6tWKJEuI2n01J3o0XobuD-3qCxgb>
 - <https://colab.research.google.com/drive/1BgFlnf_j7YI2tSP9POMOSObPAVZDUWti>
 - <https://colab.research.google.com/drive/1vRpH6CSp_R9dSX_lYIlkTGpy9fka2vMG>
-- <https://colab.research.google.com/drive/1AGdIa8MX16Tq14KY2NTep8XyOGMA5c0b>
+- <https://colab.research.google.com/drive/1AGdIa8MX16Tq14KY2NTep8XyOGMA5c0b> -->
 
 ## Presentations
 
