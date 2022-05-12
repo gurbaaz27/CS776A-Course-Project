@@ -4,7 +4,6 @@
 
 1. [Code](#code)
 2. [Implementation References](#implementation-references)
-<!-- 3. [Colab Notebooks](#colab-notebooks) -->
 3. [Presentations](#presentations)
 4. [Team Details](#team-details)
 
