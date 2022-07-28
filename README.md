@@ -1,5 +1,6 @@
-# CS776A Course Project
-# Adversarial Training Is All You Need
+# CS776A: Deep Learning for Computer Vision 
+## Course Project
+## Adversarial Training Is All You Need
 
 ### Table of Contents
 
