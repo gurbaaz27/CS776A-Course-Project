@@ -1,4 +1,5 @@
 # CS776A Course Project
+# Adversarial Training Is All You Need
 
 ### Table of Contents
 
@@ -9,6 +10,7 @@
 
 ## Code 
 
+- Abstract is present as `CS776_Project_Abstract_grp1.pdf`
 - Final Report is present as `CS776_Project_Report_grp1.pdf`
 - Presentations are present in `presentations/` directory.
 - Colab notebooks are present in offline form in `noteboooks/` directory. You may upload them on `colab` to run, or simply install all the dependencies to run locally.
